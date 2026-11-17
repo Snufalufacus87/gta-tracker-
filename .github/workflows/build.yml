@@ -1,0 +1,63 @@
+name: Build desktop app
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            name: GTA6-Countdown-Windows
+          - os: macos-latest
+            name: GTA6-Countdown-macOS
+          - os: ubuntu-latest
+            name: GTA6-Countdown-Linux
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install PyInstaller
+        run: pip install pyinstaller
+      - name: Build
+        shell: bash
+        run: |
+          cp gta6_countdown.pyw gta6_countdown.py
+          pyinstaller --noconfirm --onefile --windowed --name "GTA6 Countdown" gta6_countdown.py
+      - name: Package
+        shell: bash
+        run: |
+          cd dist
+          if [ "${{ runner.os }}" = "macOS" ]; then
+            rm -f "GTA6 Countdown"   # keep only the .app bundle
+            ditto -c -k --keepParent "GTA6 Countdown.app" "../${{ matrix.name }}.zip"
+          elif [ "${{ runner.os }}" = "Windows" ]; then
+            7z a "../${{ matrix.name }}.zip" "GTA6 Countdown.exe"
+          else
+            chmod +x "GTA6 Countdown"
+            tar czf "../${{ matrix.name }}.tar.gz" "GTA6 Countdown"
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}
+          path: |
+            ${{ matrix.name }}.zip
+            ${{ matrix.name }}.tar.gz
+          if-no-files-found: error
+      - name: Attach to release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ${{ matrix.name }}.zip
+            ${{ matrix.name }}.tar.gz
