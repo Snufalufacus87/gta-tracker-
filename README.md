@@ -1,9 +1,14 @@
 # GTA VI Launch Countdown
 
-A Vice City sunset-themed desktop window that counts down to the launch of
-GTA VI: **midnight, November 19, 2026, in your local time zone**.
+A small, resizable Vice City sunset timer for your second monitor. It counts down to the
+launch of GTA VI: **midnight, November 19, 2026, in your local time zone**.
 
-![screenshot](screenshot.png)
+![screenshot](screenshot.png) ![tiny](screenshot-tiny.png)
+
+- **Any size:** drag the window edges and the whole scene scales with it.
+- **Right-click** the timer for size presets (Tiny → Extra large) and **Always on top**.
+- Your size, position and always-on-top setting are remembered for next time
+  (stored in `~/.gta6_countdown.json`).
 
 ## Open it (double-click)
 
